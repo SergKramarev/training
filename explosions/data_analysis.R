@@ -21,7 +21,14 @@ p <- nuclear_explosions %>% plot_mapbox(lat = ~latitude, lon = ~longitude, size 
 p <- gvisGeoChart(nuclear_explosions, locationvar = "latutudelongitude")
 
 # Leaflet visualization
-g <- leaflet(nuclear_explosions) %>% addTiles() %>% addAwesomeMarkers(lng = ~longitude, lat = ~latitude, clusterOptions = markerClusterOptions(), icon = icon_nuc)
+g <- leaflet(nuclear_explosions) %>% 
+    addTiles() %>% 
+    addMarkers(lng = ~longitude, lat = ~latitude, 
+                      clusterOptions = markerClusterOptions(), icon = icon_nuc)
+
+
+
+
 getColor <- function(nuclear_explosions) {
     sapply(quakes$country, function(country) {
     if(country == "USA") {
@@ -43,3 +50,6 @@ icon_nuc <- leaflet::icons(
     iconWidth =  40, iconHeight = 40,
     iconAnchorX = 20, iconAnchorY = 20)
 
+# Нужно сдалть красивые попапы, позможно немного изменить значок, хотя может 
+# и не нужно, сделать название, легенду и т.д.
+# сделать разные значки для разных типов испытаний, возможно как-то по времени их разделить
