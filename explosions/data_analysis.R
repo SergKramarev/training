@@ -20,7 +20,7 @@ p <- nuclear_explosions %>% plot_mapbox(lat = ~latitude, lon = ~longitude, size 
 p <- gvisGeoChart(nuclear_explosions, locationvar = "latutudelongitude")
 
 # Leaflet visualization
-g <- leaflet(nuclear_explosions) %>% addTiles() %>% addMarkers(lng = ~longitude, lat = ~latitude, clusterOptions = markerClusterOptions())
+g <- leaflet(nuclear_explosions) %>% addTiles() %>% addAwesomeMarkers(lng = ~longitude, lat = ~latitude, clusterOptions = markerClusterOptions(), icon = icons)
 getColor <- function(nuclear_explosions) {
     sapply(quakes$country, function(country) {
     if(country == "USA") {
