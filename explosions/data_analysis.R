@@ -1,6 +1,7 @@
 library(dplyr)
 library(lubridate)
 library(plotly)
+library(leaflet)
 
 # reading data
 nuclear_explosions <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-08-20/nuclear_explosions.csv")
@@ -20,7 +21,7 @@ p <- nuclear_explosions %>% plot_mapbox(lat = ~latitude, lon = ~longitude, size 
 p <- gvisGeoChart(nuclear_explosions, locationvar = "latutudelongitude")
 
 # Leaflet visualization
-g <- leaflet(nuclear_explosions) %>% addTiles() %>% addAwesomeMarkers(lng = ~longitude, lat = ~latitude, clusterOptions = markerClusterOptions(), icon = icons)
+g <- leaflet(nuclear_explosions) %>% addTiles() %>% addAwesomeMarkers(lng = ~longitude, lat = ~latitude, clusterOptions = markerClusterOptions(), icon = icon_nuc)
 getColor <- function(nuclear_explosions) {
     sapply(quakes$country, function(country) {
     if(country == "USA") {
@@ -31,3 +32,14 @@ getColor <- function(nuclear_explosions) {
     "red"
     } })
     }
+icons <- awesomeIcons(
+    icon = 'ios-close',
+    iconColor = 'white',
+    library = 'ion'
+)
+
+icon_nuc <- leaflet::icons(
+    iconUrl = "explosions/Dangerous-Radiation.png",
+    iconWidth =  40, iconHeight = 40,
+    iconAnchorX = 20, iconAnchorY = 20)
+
