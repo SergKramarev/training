@@ -10,26 +10,8 @@ nuclear_explosions <- readr::read_csv("https://raw.githubusercontent.com/rfordat
 nuclear_explosions[nuclear_explosions$id_no == 72015, c("latitude", "longitude")] <- c(49.33, 35.31)
 # Klivazh
 nuclear_explosions[nuclear_explosions$id_no == 79059, c("latitude", "longitude")] <- c(48.13, 38.16)
-# Mururoa changed to mean latitude and longitude of explosions in the same region
-nuclear_explosions[nuclear_explosions$region == "MURUROA" & nuclear_explosions$latitude == 0, c("latitude", "longitude")] <- c(colMeans(nuclear_explosions[nuclear_explosions$region == "MURUROA" & nuclear_explosions$latitude !=  0, "latitude"], na.rm = TRUE),
-                                                                                                                               colMeans(nuclear_explosions[nuclear_explosions$region == "MURUROA" & nuclear_explosions$latitude !=  0, "longitude"], na.rm = TRUE))
-# NTS site
-nuclear_explosions[nuclear_explosions$region == "NTS" & nuclear_explosions$latitude == 0, c("latitude", "longitude")] <- c(colMeans(nuclear_explosions[nuclear_explosions$region == "NTS" & nuclear_explosions$latitude !=  0, "latitude"], na.rm = TRUE),
-                                                                                                                           colMeans(nuclear_explosions[nuclear_explosions$region == "NTS" & nuclear_explosions$latitude !=  0, "longitude"], na.rm = TRUE))
-# SEMI KAZAKH site
-nuclear_explosions[nuclear_explosions$region == "SEMI KAZAKH" & nuclear_explosions$latitude == 0, c("latitude", "longitude")] <- c(colMeans(nuclear_explosions[nuclear_explosions$region == "SEMI KAZAKH" & nuclear_explosions$latitude !=  0, "latitude"], na.rm = TRUE),
-                                                                                                                                   colMeans(nuclear_explosions[nuclear_explosions$region == "SEMI KAZAKH" & nuclear_explosions$latitude !=  0, "longitude"], na.rm = TRUE))
-# JAKUTS RUSS site
-nuclear_explosions[nuclear_explosions$region == "JAKUTS RUSS" & nuclear_explosions$latitude == 0, c("latitude", "longitude")] <- c(colMeans(nuclear_explosions[nuclear_explosions$region == "JAKUTS RUSS" & nuclear_explosions$latitude !=  0, "latitude"], na.rm = TRUE),
-                                                                                                                                   colMeans(nuclear_explosions[nuclear_explosions$region == "JAKUTS RUSS" & nuclear_explosions$latitude !=  0, "longitude"], na.rm = TRUE))
-# BASHKIR RUSS site
-nuclear_explosions[nuclear_explosions$region == "BASHKIR RUSS" & nuclear_explosions$latitude == 0, c("latitude", "longitude")] <- c(colMeans(nuclear_explosions[nuclear_explosions$region == "BASHKIR RUSS" & nuclear_explosions$latitude !=  0, "latitude"], na.rm = TRUE),
-                                                                                                                                    colMeans(nuclear_explosions[nuclear_explosions$region == "BASHKIR RUSS" & nuclear_explosions$latitude !=  0, "longitude"], na.rm = TRUE))
-nuclear_explosions[nuclear_explosions$region == "BASHKI RUSS" & nuclear_explosions$latitude == 0, c("latitude", "longitude")] <- c(colMeans(nuclear_explosions[nuclear_explosions$region == "BASHKIR RUSS" & nuclear_explosions$latitude !=  0, "latitude"], na.rm = TRUE),
-                                                                                                                                   colMeans(nuclear_explosions[nuclear_explosions$region == "BASHKIR RUSS" & nuclear_explosions$latitude !=  0, "longitude"], na.rm = TRUE))
-# TYUMEN RUSS
-nuclear_explosions[nuclear_explosions$id_no == 85034, c("latitude", "longitude")] <- c(60.45, 72.47)
 
+nuclear_explosions[nuclear_explosions$id_no == 85034, c("latitude", "longitude")] <- c(60.45, 72.47)
 # PAMUK UZBEK
 nuclear_explosions[nuclear_explosions$id_no == 68022, c("latitude", "longitude")] <- c(39.01, 65.05)
 
@@ -43,10 +25,10 @@ nuclear_explosions <- nuclear_explosions %>%
                             ifelse(grepl("PNE", nuclear_explosions$purpose), "Peaceful",
                                    ifelse(grepl("TRANSP|FMS|WE|SE|SAM", nuclear_explosions$purpose), "Research", "Undefined"))),
            depth = ifelse(depth > 0, depth*1000, depth),
-           world_part = ifelse(latitude > 0 & longitude > 0,  "NE",
-                               ifelse(latitude > 0 & longitude < 0, "NW",
-                                      ifelse(latitude < 0 & longitude > 0, "SE",
-                                             ifelse(latitude < 0 & longitude < 0, "SW", "strange")))),
+           world_part = ifelse(latitude > 0 & longitude > 0,  "North-East",
+                               ifelse(latitude > 0 & longitude < 0, "North-West",
+                                      ifelse(latitude < 0 & longitude > 0, "South-East",
+                                             ifelse(latitude < 0 & longitude < 0, "South-West", "strange")))),
            yield_avg = round((yield_lower + yield_upper)/2, digits = 1), 
            popup_nuc = paste("Country deployed: ", country, "<br/>",
                          "Date of explosion: ", as.character(date_long), "<br/>",
@@ -72,7 +54,7 @@ g <- leaflet(nuclear_explosions) %>%
 
 # Добавить возможность отключить/включить по странам
 # Добавить дополнительных фишек
-# разобраться с широтами и долготоми по взрывам произошедшим в областях с неизвестными координатами
+# Сделать график как в оригинальном отчете
 
 # Data Analysis
 
@@ -125,6 +107,15 @@ p <- plot_ly(
 
 
 
+t <- plot_ly(r, type = "pie", labels = ~Var1, values = ~Freq, 
+             textposition = 'inside',
+             textinfo = 'label+percent',
+             hoverinfo = 'text',
+             text = ~paste(Freq, 'explosions'),
+             marker = list(line = list(color = 'black', width = 1)),
+             showlegend = FALSE
+             ) %>%
+    layout(title = "Distribution of nuclear explosions by parts of the wold")
 
 
 
