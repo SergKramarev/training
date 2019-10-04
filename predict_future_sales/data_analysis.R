@@ -24,7 +24,7 @@
 
 library(dplyr)
 library(lubridate)
-
+library(keras)
 
 
 
@@ -51,9 +51,10 @@ sales_train <- sales_train %>%
         total_income = item_cnt_day*item_price,
         weekday = wday(dmy(date)),
         weekend = as.numeric(weekday %in% c(6, 7)),
-        new_year_eve = as.numeric(month(dmy(sales_train$date)) == 12),
-        month <- month(dmy(date))
+        month = month(dmy(date))
 )
+
+sales_train <- merge(sales_train, items[2:3], all.x = TRUE)
 
 sales_train <- sales_train[sales_train$item_price > 0, ]
 
@@ -102,8 +103,48 @@ tmp1 <- sales_train %>%
         tottal = sum(item_cnt_day) 
     )
 
-tmp2 <- sales_train[sales_train$item_cnt_day < 0, ] %>%
-    group_by(item_id) %>%
+tmp2 <- sales_train %>%
+    group_by(month) %>%
     summarise(n = n(),
-              sum = sum(total_income)) %>%
-    arrange(desc(n))
+              sum = sum(total_income)
+              ) %>%
+    ungroup() %>%
+    mutate(percent = sum/sum(sum)*100)%>%
+    arrange(month)
+
+tmp3 <- sales_train %>%
+    group_by(item_category_id) %>%
+    summarise(n = n(),
+              sum = sum(total_income)
+    ) %>%
+    ungroup() %>%
+    mutate(percent = sum/sum(sum)*100)%>%
+    arrange(n)
+
+
+# Creating train set and labels
+train <- select(sales_train, shop_id:item_price, weekday, month)
+labels <- select(sales_train, item_cnt_day)
+train <- as.matrix(unname(train))
+labels <- unlist(unname(labels))
+
+model <- keras_model_sequential() %>%
+    layer_dense(units = 64, activation = "relu",
+                input_shape = dim(train)[2]) %>%
+    layer_dense(units = 64, activation = "relu") %>%
+    layer_dense(units = 1)
+
+model %>% compile(
+    loss = "mse",
+    optimizer = optimizer_rmsprop(),
+    metrics = list("mean_absolute_error")
+)
+
+model %>% fit(
+    train,
+    labels,
+    epochs = 3,
+    verbose = 0
+    
+)
+
